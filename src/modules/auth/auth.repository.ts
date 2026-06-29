@@ -1,6 +1,4 @@
 import prisma from "../../config/prisma";
-import { Prisma } from "@prisma/client";
-type UserCreate = Prisma.usersUncheckedCreateInput;
 
 class AuthRepository {
   async findByEmail(email: string) {
