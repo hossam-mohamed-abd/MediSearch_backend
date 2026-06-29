@@ -1,5 +1,6 @@
 import prisma from "../../config/prisma";
 import { Prisma } from "@prisma/client";
+type UserCreate = Prisma.usersUncheckedCreateInput;
 
 class AuthRepository {
   async findByEmail(email: string) {
@@ -10,7 +11,7 @@ class AuthRepository {
     });
   }
 
-  async create(data: Prisma.usersCreateInput) {
+  async create(data: UserCreate) {
     return prisma.users.create({
       data,
     });
