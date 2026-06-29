@@ -19,6 +19,20 @@ app.use(
   }),
 );
 
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "MediSearch API Running",
+  });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    message: "Server is healthy",
+  });
+});
+
 app.use(helmet());
 
 app.use(express.json());
