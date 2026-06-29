@@ -11,7 +11,7 @@ class AuthRepository {
     });
   }
 
-  async create(data: UserCreate) {
+  async create(data: any) {
     return prisma.users.create({
       data,
     });
