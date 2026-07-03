@@ -6,7 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const auth_repository_1 = __importDefault(require("./auth.repository"));
 const generateToken_1 = require("../../utils/generateToken");
+const notification_service_1 = require("../notifications/notification.service");
 class AuthService {
+    notificationService = new notification_service_1.NotificationService();
     async register(data) {
         const user = await auth_repository_1.default.findByEmail(data.email);
         if (user) {
@@ -27,6 +29,8 @@ class AuthService {
                 },
             },
         });
+        // 🔔 Welcome Notification
+        await this.notificationService.createWelcomeNotification(newUser.id);
         const token = (0, generateToken_1.generateToken)(newUser.id);
         return {
             user: newUser,
