@@ -2,8 +2,10 @@ import bcrypt from "bcryptjs";
 import authRepository from "./auth.repository";
 import { RegisterDto, LoginDto } from "./auth.types";
 import { generateToken } from "../../utils/generateToken";
-
+import { NotificationService } from "../notifications/notification.service";
 class AuthService {
+  private notificationService = new NotificationService();
+
   async register(data: RegisterDto) {
     const user = await authRepository.findByEmail(data.email);
 
@@ -27,6 +29,9 @@ class AuthService {
         },
       },
     });
+
+    // 🔔 Welcome Notification
+    await this.notificationService.createWelcomeNotification(newUser.id);
 
     const token = generateToken(newUser.id);
 

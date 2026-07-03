@@ -48,6 +48,7 @@ model drug_categories {
   name        String?   @db.VarChar(255)
   description String?
   created_at  DateTime? @db.Timestamp(6)
+  image_url   String?
   drugs       drugs[]
 }
 
@@ -59,27 +60,32 @@ model drug_tags {
 }
 
 model drugs {
-  id                                                             BigInt               @id @default(autoincrement())
+  id                                                             BigInt                 @id @default(autoincrement())
   category_id                                                    BigInt?
-  name                                                           String?              @db.VarChar(255)
-  active_substance                                               String?              @db.VarChar(255)
-  dosage_form                                                    String?              @db.VarChar(255)
-  strength                                                       String?              @db.VarChar(255)
-  manufacturer                                                   String?              @db.VarChar(255)
+  name                                                           String?
+  active_substance                                               String?                @db.VarChar(255)
+  dosage_form                                                    String?                @db.VarChar(255)
+  strength                                                       String?                @db.VarChar(255)
+  manufacturer                                                   String?                @db.VarChar(255)
   description                                                    String?
   image_url                                                      String?
-  created_at                                                     DateTime?            @db.Timestamp(6)
-  updated_at                                                     DateTime?            @db.Timestamp(6)
+  created_at                                                     DateTime?              @db.Timestamp(6)
+  updated_at                                                     DateTime?              @db.Timestamp(6)
   alerts                                                         alerts[]
-  drug_alternatives_drug_alternatives_alternative_drug_idTodrugs drug_alternatives[]  @relation("drug_alternatives_alternative_drug_idTodrugs")
-  drug_alternatives_drug_alternatives_drug_idTodrugs             drug_alternatives[]  @relation("drug_alternatives_drug_idTodrugs")
+  availability_history                                           availability_history[]
+  drug_alternatives_drug_alternatives_alternative_drug_idTodrugs drug_alternatives[]    @relation("drug_alternatives_alternative_drug_idTodrugs")
+  drug_alternatives_drug_alternatives_drug_idTodrugs             drug_alternatives[]    @relation("drug_alternatives_drug_idTodrugs")
+  drug_analytics                                                 drug_analytics?
   drug_tags                                                      drug_tags[]
-  drug_categories                                                drug_categories?     @relation(fields: [category_id], references: [id], onUpdate: NoAction, map: "fk_drugs_category")
+  drug_categories                                                drug_categories?       @relation(fields: [category_id], references: [id], onUpdate: NoAction, map: "fk_drugs_category")
   favorites                                                      favorites[]
   pharmacy_inventory                                             pharmacy_inventory[]
+  price_history                                                  price_history[]
 
   @@index([active_substance], map: "idx_active_substance")
   @@index([name], map: "idx_drug_name")
+  @@index([category_id], map: "idx_drugs_category")
+  @@index([name], map: "idx_drugs_name")
 }
 
 model favorites {
@@ -143,6 +149,8 @@ model pharmacy_inventory {
   @@unique([pharmacy_id, drug_id], map: "uq_inventory")
   @@index([drug_id], map: "idx_inventory_drug")
   @@index([pharmacy_id], map: "idx_inventory_pharmacy")
+  @@index([drug_id], map: "idx_pharmacy_inventory_drug")
+  @@index([pharmacy_id], map: "idx_pharmacy_inventory_pharmacy")
 }
 
 model pharmacy_ratings {
@@ -202,4 +210,43 @@ model users {
   pharmacy_staff   pharmacy_staff[]
   search_logs      search_logs[]
   cities           cities?            @relation(fields: [city_id], references: [id], onUpdate: NoAction, map: "fk_users_city")
+}
+
+model availability_history {
+  id          BigInt   @id
+  drug_id     BigInt
+  pharmacy_id BigInt
+  available   Boolean
+  checked_at  DateTime @default(now()) @db.Timestamp(6)
+  drugs       drugs    @relation(fields: [drug_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([drug_id], map: "idx_availability_history_drug")
+  @@index([pharmacy_id], map: "idx_availability_history_pharmacy")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model drug_analytics {
+  id                      BigInt   @id
+  drug_id                 BigInt   @unique
+  avg_price               Decimal? @db.Decimal(10, 2)
+  min_price               Decimal? @db.Decimal(10, 2)
+  max_price               Decimal? @db.Decimal(10, 2)
+  availability_percentage Decimal? @db.Decimal(5, 2)
+  calculated_at           DateTime @default(now()) @db.Timestamp(6)
+  drugs                   drugs    @relation(fields: [drug_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([drug_id], map: "idx_drug_analytics_drug")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model price_history {
+  id          BigInt   @id
+  drug_id     BigInt
+  pharmacy_id BigInt
+  price       Decimal  @db.Decimal(10, 2)
+  recorded_at DateTime @default(now()) @db.Timestamp(6)
+  drugs       drugs    @relation(fields: [drug_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([drug_id], map: "idx_price_history_drug")
+  @@index([pharmacy_id], map: "idx_price_history_pharmacy")
 }
