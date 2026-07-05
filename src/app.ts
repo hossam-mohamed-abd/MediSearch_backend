@@ -18,6 +18,7 @@ import pharmacyRoutes from "./modules/pharmacies/pharmacy.routes";
 import statisticsRoutes from "./modules/statistics/statistics.routes";
 import notificationRoutes from "./modules/notifications/notification.routes";
 import searchRoutes from "./modules/search/search.routes";
+import aiRoutes from "./modules/ai/ai.routes";
 
 const app = express();
 
@@ -58,4 +59,6 @@ app.use("/api/home/pharmacies", pharmacyRoutes);
 app.use("/api/home/statistics", statisticsRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/ai", aiRoutes);
+
 export default app;
