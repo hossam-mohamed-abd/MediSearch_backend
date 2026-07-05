@@ -22,6 +22,7 @@ const statistics_routes_1 = __importDefault(require("./modules/statistics/statis
 const notification_routes_1 = __importDefault(require("./modules/notifications/notification.routes"));
 const search_routes_1 = __importDefault(require("./modules/search/search.routes"));
 const ai_routes_1 = __importDefault(require("./modules/ai/ai.routes"));
+const medicine_routes_2 = __importDefault(require("./modules/medicine-detail/medicine.routes"));
 const app = (0, express_1.default)();
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
@@ -54,4 +55,5 @@ app.use("/api/home/statistics", statistics_routes_1.default);
 app.use("/api/notifications", notification_routes_1.default);
 app.use("/api/search", search_routes_1.default);
 app.use("/api/ai", ai_routes_1.default);
+app.use("/api/drugs", medicine_routes_2.default);
 exports.default = app;

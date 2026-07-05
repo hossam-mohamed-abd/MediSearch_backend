@@ -19,6 +19,7 @@ import statisticsRoutes from "./modules/statistics/statistics.routes";
 import notificationRoutes from "./modules/notifications/notification.routes";
 import searchRoutes from "./modules/search/search.routes";
 import aiRoutes from "./modules/ai/ai.routes";
+import medicineDetailRoutes from "./modules/medicine-detail/medicine.routes";
 
 const app = express();
 
@@ -60,5 +61,5 @@ app.use("/api/home/statistics", statisticsRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/ai", aiRoutes);
-
+app.use("/api/drugs", medicineDetailRoutes);
 export default app;
