@@ -8,7 +8,9 @@ export class AiController {
     try {
       const { message, history } = req.body;
 
-      const result = await aiService.chat({ message, history });
+      const userId = req.userId ? BigInt(req.userId) : null;
+
+      const result = await aiService.chat({ message, history }, userId);
 
       return res.json({
         success: true,
@@ -16,6 +18,8 @@ export class AiController {
         medicineCard: result.medicineCard,
         alternativeCard: result.alternativeCard,
         searchQuery: result.searchQuery,
+        nearbyPharmacies: result.nearbyPharmacies,
+        pharmaciesUnavailableReason: result.pharmaciesUnavailableReason,
       });
     } catch (error: any) {
       return res.status(500).json({

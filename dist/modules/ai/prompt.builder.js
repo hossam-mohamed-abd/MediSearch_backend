@@ -1,10 +1,10 @@
-import { PromptContext } from "./ai.types";
-
-export class PromptBuilder {
-  build(context: PromptContext): string {
-    const { history, userMessage } = context;
-
-    const rules = `
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PromptBuilder = void 0;
+class PromptBuilder {
+    build(context) {
+        const { history, userMessage } = context;
+        const rules = `
 You are MediSearch AI, a friendly medical assistant embedded inside a chat widget.
 
 Conversation rules:
@@ -54,15 +54,12 @@ You must respond with ONLY valid JSON, no markdown code fences, no extra text be
   "wantsNearbyPharmacies": boolean
 }
 `;
-
-    const historySection =
-      history.length === 0
-        ? "No previous conversation."
-        : history
-            .map((item) => `${item.role.toUpperCase()}:\n${item.text}`)
-            .join("\n\n");
-
-    return `
+        const historySection = history.length === 0
+            ? "No previous conversation."
+            : history
+                .map((item) => `${item.role.toUpperCase()}:\n${item.text}`)
+                .join("\n\n");
+        return `
 ${rules}
 
 ----------------------------
@@ -81,5 +78,6 @@ ${userMessage}
 
 Respond with the JSON object only.
 `;
-  }
+    }
 }
+exports.PromptBuilder = PromptBuilder;

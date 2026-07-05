@@ -1,17 +1,26 @@
 import { GeminiService } from "./gemini.service";
 import { PromptBuilder } from "./prompt.builder";
+import { UserLocationService } from "./user-location.service";
+import { PharmacyLocatorService } from "./pharmacy-locator.service";
 import {
   ChatRequest,
   AiChatResult,
   MedicineCard,
   AlternativeCard,
+  RawAiJson,
+  PharmaciesUnavailableReason,
 } from "./ai.types";
 
 export class AiService {
   private geminiService = new GeminiService();
   private promptBuilder = new PromptBuilder();
+  private userLocationService = new UserLocationService();
+  private pharmacyLocatorService = new PharmacyLocatorService();
 
-  async chat(request: ChatRequest): Promise<AiChatResult> {
+  async chat(
+    request: ChatRequest,
+    userId: bigint | null,
+  ): Promise<AiChatResult> {
     const message = request.message.trim();
 
     if (!message) {
@@ -26,11 +35,62 @@ export class AiService {
     });
 
     const raw = await this.geminiService.generateResponse(prompt);
+    const parsed = this.parseResponse(raw);
 
-    return this.parseResponse(raw);
+    let nearbyPharmacies: AiChatResult["nearbyPharmacies"] = null;
+    let pharmaciesUnavailableReason: PharmaciesUnavailableReason = null;
+
+    if (parsed.wantsNearbyPharmacies) {
+      const result = await this.resolveNearbyPharmacies(userId);
+      nearbyPharmacies = result.pharmacies;
+      pharmaciesUnavailableReason = result.reason;
+    }
+
+    return {
+      messages: parsed.messages,
+      medicineCard: parsed.medicineCard,
+      alternativeCard: parsed.alternativeCard,
+      searchQuery: parsed.searchQuery,
+      nearbyPharmacies,
+      pharmaciesUnavailableReason,
+    };
   }
 
-  private parseResponse(raw: string): AiChatResult {
+  private async resolveNearbyPharmacies(
+    userId: bigint | null,
+  ): Promise<{
+    pharmacies: AiChatResult["nearbyPharmacies"];
+    reason: PharmaciesUnavailableReason;
+  }> {
+    if (!userId) {
+      return { pharmacies: null, reason: "no_city" };
+    }
+
+    try {
+      const area = await this.userLocationService.resolveUserArea(userId);
+
+      if (!area) {
+        return { pharmacies: null, reason: "no_city" };
+      }
+
+      const areaQuery = this.userLocationService.areaToQueryString(area);
+      const pharmacies = await this.pharmacyLocatorService.findNearby(
+        areaQuery,
+        3,
+      );
+
+      if (!pharmacies.length) {
+        return { pharmacies: null, reason: "not_found" };
+      }
+
+      return { pharmacies, reason: null };
+    } catch (error) {
+      console.error("Failed to resolve nearby pharmacies:", error);
+      return { pharmacies: null, reason: "error" };
+    }
+  }
+
+  private parseResponse(raw: string): RawAiJson {
     const cleaned = raw
       .trim()
       .replace(/^```json\s*/i, "")
@@ -58,6 +118,7 @@ export class AiService {
           typeof parsed?.searchQuery === "string" && parsed.searchQuery.trim()
             ? parsed.searchQuery.trim()
             : null,
+        wantsNearbyPharmacies: parsed?.wantsNearbyPharmacies === true,
       };
     } catch {
       return {
@@ -65,6 +126,7 @@ export class AiService {
         medicineCard: null,
         alternativeCard: null,
         searchQuery: null,
+        wantsNearbyPharmacies: false,
       };
     }
   }
