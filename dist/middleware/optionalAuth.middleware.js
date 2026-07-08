@@ -1,5 +1,4 @@
 "use strict";
-// middleware/optionalAuth.middleware.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.optionalAuthMiddleware = void 0;
 const verifyToken_1 = require("../utils/verifyToken");

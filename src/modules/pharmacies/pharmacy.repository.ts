@@ -21,7 +21,10 @@ export class PharmacyRepository {
         },
 
         _count: {
-          select: { pharmacy_ratings: true },
+          select: {
+            pharmacy_ratings: true,
+            pharmacy_view: true, // ← إضافة عدّ المشاهدات
+          },
         },
       },
 
@@ -51,6 +54,8 @@ export class PharmacyRepository {
         medicines_count: p.pharmacy_inventory.length,
 
         reviews_count: p._count.pharmacy_ratings,
+
+        views_count: p._count.pharmacy_view, // ← الحقل الجديد
 
         avg_rating: Number(avgRating.toFixed(1)),
       };
@@ -328,7 +333,6 @@ export class PharmacyRepository {
   }
 
   async addView(pharmacyId: bigint, userId: bigint | null, source: string) {
-    console.log('addView called →', { pharmacyId, userId, source });
     let cityId: bigint | null = null;
 
     if (userId) {
@@ -347,7 +351,7 @@ export class PharmacyRepository {
 
     await prisma.pharmacy_view.create({
       data: {
-        pharmacy_id_: pharmacyId,
+        pharmacy_id: pharmacyId,
 
         Time: new Date(),
 
