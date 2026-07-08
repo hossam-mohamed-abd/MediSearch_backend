@@ -20,7 +20,10 @@ class PharmacyRepository {
                     select: { rating: true },
                 },
                 _count: {
-                    select: { pharmacy_ratings: true },
+                    select: {
+                        pharmacy_ratings: true,
+                        pharmacy_view: true, // ← إضافة عدّ المشاهدات
+                    },
                 },
             },
             orderBy: {
@@ -42,6 +45,7 @@ class PharmacyRepository {
                 city_name: p.cities?.name,
                 medicines_count: p.pharmacy_inventory.length,
                 reviews_count: p._count.pharmacy_ratings,
+                views_count: p._count.pharmacy_view, // ← الحقل الجديد
                 avg_rating: Number(avgRating.toFixed(1)),
             };
         });
@@ -257,7 +261,6 @@ class PharmacyRepository {
         };
     }
     async addView(pharmacyId, userId, source) {
-        console.log('addView called →', { pharmacyId, userId, source });
         let cityId = null;
         if (userId) {
             const user = await prisma_1.default.users.findUnique({
@@ -272,7 +275,7 @@ class PharmacyRepository {
         }
         await prisma_1.default.pharmacy_view.create({
             data: {
-                pharmacy_id_: pharmacyId,
+                pharmacy_id: pharmacyId,
                 Time: new Date(),
                 user_id: userId,
                 city_id: cityId,
