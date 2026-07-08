@@ -1,6 +1,9 @@
 import { Router } from "express";
+
 import { PharmacyController } from "./pharmacy.controller";
+
 import { authMiddleware } from "../../middleware/auth.middleware";
+import { optionalAuthMiddleware } from "../../middleware/optionalAuth.middleware";
 
 const router = Router();
 
@@ -8,7 +11,7 @@ const controller = new PharmacyController();
 
 router.get("/", controller.getFeaturedPharmacies);
 
-router.get("/:id", controller.getPharmacy);
+router.get("/:id", optionalAuthMiddleware, controller.getPharmacy);
 
 router.get("/:id/medicines", controller.getPharmacyMedicines);
 

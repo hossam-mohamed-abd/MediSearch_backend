@@ -83,5 +83,29 @@ class SearchRepository {
             data,
         };
     }
+    async createSearchLog(searchText, userId, ipAddress, drugId) {
+        let cityId = null;
+        if (userId) {
+            const user = await prisma_1.default.users.findUnique({
+                where: {
+                    id: userId,
+                },
+                select: {
+                    city_id: true,
+                },
+            });
+            cityId = user?.city_id ?? null;
+        }
+        await prisma_1.default.search_logs.create({
+            data: {
+                user_id: userId,
+                search_text: searchText,
+                searched_at: new Date(),
+                ip_address: ipAddress,
+                city_id: cityId,
+                drug_id: drugId,
+            },
+        });
+    }
 }
 exports.SearchRepository = SearchRepository;

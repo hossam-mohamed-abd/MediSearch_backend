@@ -10,19 +10,24 @@ import {
   RawAiJson,
   PharmaciesUnavailableReason,
 } from "./ai.types";
+import { AiRepository } from "./ai.repository";
 
 export class AiService {
   private geminiService = new GeminiService();
   private promptBuilder = new PromptBuilder();
   private userLocationService = new UserLocationService();
   private pharmacyLocatorService = new PharmacyLocatorService();
+  private repository = new AiRepository();
 
   async chat(
     request: ChatRequest,
     userId: bigint | null,
+    ipAddress: string | null,
   ): Promise<AiChatResult> {
     const message = request.message.trim();
-
+    if (message.length >= 2) {
+      await this.repository.createSearchLog(message, userId, ipAddress);
+    }
     if (!message) {
       throw new Error("Message is required.");
     }
@@ -56,9 +61,7 @@ export class AiService {
     };
   }
 
-  private async resolveNearbyPharmacies(
-    userId: bigint | null,
-  ): Promise<{
+  private async resolveNearbyPharmacies(userId: bigint | null): Promise<{
     pharmacies: AiChatResult["nearbyPharmacies"];
     reason: PharmaciesUnavailableReason;
   }> {

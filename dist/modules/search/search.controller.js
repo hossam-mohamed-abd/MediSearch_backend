@@ -9,7 +9,11 @@ class SearchController {
             const q = String(req.query.q ?? "");
             const page = Number(req.query.page) || 1;
             const limit = Number(req.query.limit) || 12;
-            const data = await service.search(q, page, limit);
+            const userId = req.userId ? BigInt(req.userId) : null;
+            const ip = req.headers["x-forwarded-for"]?.split(",")[0] ||
+                req.socket.remoteAddress ||
+                null;
+            const data = await service.search(q, page, limit, userId, ip);
             res.json({
                 success: true,
                 ...data,

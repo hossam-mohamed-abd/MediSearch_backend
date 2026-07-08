@@ -24,7 +24,9 @@ class PharmacyController {
     getPharmacy = async (req, res) => {
         try {
             const id = BigInt(req.params.id);
-            const pharmacy = await this.pharmacyService.getPharmacyDetails(id);
+            const userId = req.userId ? BigInt(req.userId) : null;
+            const source = typeof req.query.source === "string" ? req.query.source : "details";
+            const pharmacy = await this.pharmacyService.getPharmacyDetails(id, userId, source);
             return res.json({
                 success: true,
                 data: pharmacy,

@@ -1,6 +1,8 @@
 import prisma from "../../config/prisma";
 
 export class PharmacyRepository {
+  // pharmacy.repository.ts
+
   async getFeaturedPharmacies(page: number, limit = 4) {
     const skip = (page - 1) * limit;
 
@@ -14,7 +16,13 @@ export class PharmacyRepository {
 
         pharmacy_inventory: true,
 
-        pharmacy_ratings: true,
+        pharmacy_ratings: {
+          select: { rating: true },
+        },
+
+        _count: {
+          select: { pharmacy_ratings: true },
+        },
       },
 
       orderBy: {
@@ -42,7 +50,7 @@ export class PharmacyRepository {
 
         medicines_count: p.pharmacy_inventory.length,
 
-        reviews_count: p.pharmacy_ratings.length,
+        reviews_count: p._count.pharmacy_ratings,
 
         avg_rating: Number(avgRating.toFixed(1)),
       };
@@ -78,6 +86,10 @@ export class PharmacyRepository {
           select: {
             rating: true,
           },
+        },
+
+        _count: {
+          select: { pharmacy_ratings: true },
         },
       },
     });
@@ -313,5 +325,38 @@ export class PharmacyRepository {
 
       average_price: Number(avgPrice.toFixed(2)),
     };
+  }
+
+  async addView(pharmacyId: bigint, userId: bigint | null, source: string) {
+    console.log('addView called →', { pharmacyId, userId, source });
+    let cityId: bigint | null = null;
+
+    if (userId) {
+      const user = await prisma.users.findUnique({
+        where: {
+          id: userId,
+        },
+
+        select: {
+          city_id: true,
+        },
+      });
+
+      cityId = user?.city_id ?? null;
+    }
+
+    await prisma.pharmacy_view.create({
+      data: {
+        pharmacy_id_: pharmacyId,
+
+        Time: new Date(),
+
+        user_id: userId,
+
+        city_id: cityId,
+
+        source,
+      },
+    });
   }
 }

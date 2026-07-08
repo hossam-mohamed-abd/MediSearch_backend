@@ -5,13 +5,18 @@ const gemini_service_1 = require("./gemini.service");
 const prompt_builder_1 = require("./prompt.builder");
 const user_location_service_1 = require("./user-location.service");
 const pharmacy_locator_service_1 = require("./pharmacy-locator.service");
+const ai_repository_1 = require("./ai.repository");
 class AiService {
     geminiService = new gemini_service_1.GeminiService();
     promptBuilder = new prompt_builder_1.PromptBuilder();
     userLocationService = new user_location_service_1.UserLocationService();
     pharmacyLocatorService = new pharmacy_locator_service_1.PharmacyLocatorService();
-    async chat(request, userId) {
+    repository = new ai_repository_1.AiRepository();
+    async chat(request, userId, ipAddress) {
         const message = request.message.trim();
+        if (message.length >= 2) {
+            await this.repository.createSearchLog(message, userId, ipAddress);
+        }
         if (!message) {
             throw new Error("Message is required.");
         }

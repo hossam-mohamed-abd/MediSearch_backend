@@ -18,11 +18,12 @@ model alerts {
 }
 
 model cities {
-  id             BigInt        @id @default(autoincrement())
+  id             BigInt          @id @default(autoincrement())
   governorate_id BigInt?
-  name           String?       @db.VarChar(255)
-  governorates   governorates? @relation(fields: [governorate_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cities_governorate")
+  name           String?         @db.VarChar(255)
+  governorates   governorates?   @relation(fields: [governorate_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cities_governorate")
   pharmacies     pharmacies[]
+  pharmacy_view  pharmacy_view[]
   search_logs    search_logs[]
   users          users[]
 }
@@ -212,6 +213,7 @@ model users {
   notifications    notifications[]
   pharmacy_ratings pharmacy_ratings[]
   pharmacy_staff   pharmacy_staff[]
+  pharmacy_view    pharmacy_view[]
   search_logs      search_logs[]
   cities           cities?            @relation(fields: [city_id], references: [id], onUpdate: NoAction, map: "fk_users_city")
 }
@@ -259,5 +261,13 @@ model pharmacy_view {
   Id           Int        @id(map: "pharmacy_click_pkey") @default(autoincrement())
   pharmacy_id_ BigInt     @map("pharmacy_id ")
   Time         DateTime?  @db.Timestamp(6)
+  user_id      BigInt?
+  city_id      BigInt?
+  source       String?    @db.VarChar(30)
   pharmacies   pharmacies @relation(fields: [pharmacy_id_], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "constraint_1")
+  cities       cities?    @relation(fields: [city_id], references: [id], onUpdate: NoAction, map: "fk_pharmacy_view_city")
+  users        users?     @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_pharmacy_view_user")
+
+  @@index([city_id], map: "idx_pharmacy_view_city")
+  @@index([user_id], map: "idx_pharmacy_view_user")
 }

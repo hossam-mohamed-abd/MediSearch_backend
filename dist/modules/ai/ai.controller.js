@@ -8,7 +8,13 @@ class AiController {
         try {
             const { message, history } = req.body;
             const userId = req.userId ? BigInt(req.userId) : null;
-            const result = await aiService.chat({ message, history }, userId);
+            const ipAddress = req.headers["x-forwarded-for"]?.split(",")[0] ??
+                req.socket.remoteAddress ??
+                null;
+            const result = await aiService.chat({
+                message,
+                history,
+            }, userId, ipAddress);
             return res.json({
                 success: true,
                 messages: result.messages,
