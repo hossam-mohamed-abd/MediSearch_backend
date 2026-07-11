@@ -1,12 +1,19 @@
+import {
+  Request,
+  Response,
+  NextFunction,
+} from "express";
 
-import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/verifyToken";
 
 /**
- * Like authMiddleware, but never blocks the request. If a valid token is
- * present, req.userId is set so downstream code can personalize the response
- * (e.g. ranking pharmacies by the user's city). If not, the request proceeds
- * as an anonymous/guest request with req.userId left undefined.
+ * Optional Authentication
+ *
+ * لو فيه Token صحيح:
+ *   - يضيف بيانات المستخدم للـ Request.
+ *
+ * لو مفيش Token أو Token غير صالح:
+ *   - يكمل عادى كـ Guest.
  */
 export const optionalAuthMiddleware = (
   req: Request,
@@ -15,12 +22,30 @@ export const optionalAuthMiddleware = (
 ) => {
   try {
     const token = req.cookies?.token;
-    if (!token) return next();
+
+    if (!token) {
+      return next();
+    }
 
     const payload = verifyToken(token);
+
     req.userId = payload.userId;
+
+    req.role = payload.role;
+
+    req.pharmacyId = payload.pharmacyId;
+
+    req.staffRole = payload.staffRole;
+
+    req.user = {
+      id: payload.userId,
+      role: payload.role,
+      pharmacyId: payload.pharmacyId,
+      staffRole: payload.staffRole,
+    };
   } catch {
-    // Invalid/expired token — treat as a guest rather than failing the request.
+    // Invalid token
+    // Continue as Guest
   }
 
   next();

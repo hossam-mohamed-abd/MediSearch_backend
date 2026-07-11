@@ -31,7 +31,10 @@ class AuthService {
         });
         // 🔔 Welcome Notification
         await this.notificationService.createWelcomeNotification(newUser.id);
-        const token = (0, generateToken_1.generateToken)(newUser.id);
+        const token = (0, generateToken_1.generateToken)({
+            userId: newUser.id,
+            role: "customer",
+        });
         return {
             user: newUser,
             token,
@@ -46,7 +49,10 @@ class AuthService {
         if (!isPasswordCorrect) {
             throw new Error("Invalid email or password");
         }
-        const token = (0, generateToken_1.generateToken)(user.id);
+        const token = (0, generateToken_1.generateToken)({
+            userId: user.id,
+            role: "customer",
+        });
         return {
             user,
             token,

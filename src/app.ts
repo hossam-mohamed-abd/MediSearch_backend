@@ -20,7 +20,12 @@ import notificationRoutes from "./modules/notifications/notification.routes";
 import searchRoutes from "./modules/search/search.routes";
 import aiRoutes from "./modules/ai/ai.routes";
 import medicineDetailRoutes from "./modules/medicine-detail/medicine.routes";
-
+import pharmacyAuthRoutes from "./modules/pharmacy-auth/pharmacy-auth.routes";
+import pharmacyDashboardRoutes
+  from "./modules/pharmacy-dashboard/pharmacy-dashboard.routes";
+import pharmacyUploadRoutes
+  from "./modules/pharmacy-upload/pharmacy-upload.routes";
+import pharmacyProfileRoutes from "./modules/pharmacy-profile/pharmacy-profile.routes";
 const app = express();
 
 app.use(helmet());
@@ -62,4 +67,17 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/drugs", medicineDetailRoutes);
+app.use("/api/pharmacy-auth", pharmacyAuthRoutes);
+app.use(
+  "/api/pharmacy/dashboard",
+  pharmacyDashboardRoutes,
+);
+app.use(
+  "/api/pharmacy/upload",
+  pharmacyUploadRoutes,
+);
+app.use(
+  "/api/pharmacy/profile",
+  pharmacyProfileRoutes,
+);
 export default app;

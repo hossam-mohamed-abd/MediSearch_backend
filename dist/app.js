@@ -23,6 +23,10 @@ const notification_routes_1 = __importDefault(require("./modules/notifications/n
 const search_routes_1 = __importDefault(require("./modules/search/search.routes"));
 const ai_routes_1 = __importDefault(require("./modules/ai/ai.routes"));
 const medicine_routes_2 = __importDefault(require("./modules/medicine-detail/medicine.routes"));
+const pharmacy_auth_routes_1 = __importDefault(require("./modules/pharmacy-auth/pharmacy-auth.routes"));
+const pharmacy_dashboard_routes_1 = __importDefault(require("./modules/pharmacy-dashboard/pharmacy-dashboard.routes"));
+const pharmacy_upload_routes_1 = __importDefault(require("./modules/pharmacy-upload/pharmacy-upload.routes"));
+const pharmacy_profile_routes_1 = __importDefault(require("./modules/pharmacy-profile/pharmacy-profile.routes"));
 const app = (0, express_1.default)();
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
@@ -56,4 +60,8 @@ app.use("/api/notifications", notification_routes_1.default);
 app.use("/api/search", search_routes_1.default);
 app.use("/api/ai", ai_routes_1.default);
 app.use("/api/drugs", medicine_routes_2.default);
+app.use("/api/pharmacy-auth", pharmacy_auth_routes_1.default);
+app.use("/api/pharmacy/dashboard", pharmacy_dashboard_routes_1.default);
+app.use("/api/pharmacy/upload", pharmacy_upload_routes_1.default);
+app.use("/api/pharmacy/profile", pharmacy_profile_routes_1.default);
 exports.default = app;
